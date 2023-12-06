@@ -6,7 +6,8 @@ const DataTable = ({ data }: { data: string[] }) => {
         <tbody>
           {data.map((line, i) => (
             <tr key={i}>
-              <td>{line}</td>
+              <td>{i}</td>
+              <td>{line ?? "-"}</td>
             </tr>
           ))}
         </tbody>

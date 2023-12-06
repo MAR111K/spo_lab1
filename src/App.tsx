@@ -1,5 +1,5 @@
 import BinaryMethod from "./components/BinaryMethod";
-// import HashPowMethod from "./components/HashPowMethod";
+import HashPowMethod from "./components/HashPowMethod";
 import LogSearch from "./components/LogSearch";
 import SimpleMethod from "./components/SimpleMethod";
 
@@ -9,7 +9,7 @@ function App() {
       <SimpleMethod />
       <BinaryMethod />
       <LogSearch />
-      {/* <HashPowMethod/> */}
+      <HashPowMethod />
     </div>
   );
 }
