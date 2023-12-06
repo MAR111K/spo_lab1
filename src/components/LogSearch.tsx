@@ -84,7 +84,6 @@ const LogSearch = () => {
 
   const searchElementInList = () => {
     const result = binarySearch(listData, searchInput);
-    console.log(result);
     alert(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       `Элемент= ${searchInput}\nкол-во итераций:${result.count}\nиндекс:${result.position}`

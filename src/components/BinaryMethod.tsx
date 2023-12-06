@@ -20,76 +20,117 @@ function readFile(file: File) {
   });
 }
 
-function bubbleSort(arr: string[]) {
-  const len = arr.length;
-  for (let i = 0; i < len; i++) {
-    for (let j = 0; j < len - i - 1; j++) {
-      if (arr[j] > arr[j + 1]) {
-        const temp = arr[j];
-        arr[j] = arr[j + 1];
-        arr[j + 1] = temp;
-      }
-    }
+class Node {
+  left = null;
+  right = null;
+  val = "";
+
+  constructor(key: string) {
+    this.val = key;
   }
-  return arr;
 }
 
-function binarySearch(array: string[], item: string) {
-  let start = 0;
-  let count = 0;
-  let end = array.length;
-  let middle;
-  let found = false;
-  let position = -1;
-  while (found === false && start <= end) {
-    count += 1;
-    middle = Math.floor((start + end) / 2);
-    if (array[middle] === item) {
-      found = true;
-      position = middle;
-      return { position, count };
-    }
-    if (item < array[middle]) {
-      end = middle - 1;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function insert(root: any, key: string) {
+  if (!root) {
+    return new Node(key);
+  } else {
+    if (root.val < key) {
+      root.right = insert(root.right, key);
     } else {
-      start = middle + 1;
+      root.left = insert(root.left, key);
+    }
+    return root;
+  }
+}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function inorderTraversal(root: any, traversalArray: string[]) {
+  if (root) {
+    inorderTraversal(root.left, traversalArray);
+    traversalArray.push(root.val);
+    inorderTraversal(root.right, traversalArray);
+  }
+}
+
+// Функция для поиска элемента в бинарном дереве
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function search(root: any, key: string): any {
+  let iterations = 0;
+
+  while (root !== null && root.val !== key) {
+    iterations++;
+    if (root.val < key) {
+      root = root.right;
+    } else {
+      root = root.left;
     }
   }
-  return { position, count };
+
+  if (root && root.val === key) {
+    return { node: root, iterations };
+  }
+
+  return { node: null, iterations };
 }
 
 const BinaryMethod = () => {
   const [file, setFile] = useState<null | File>(null);
-  const [listData, setListData] = useState<string[]>([]);
 
-  //simple methods
   const [searchInput, setSearchInput] = useState("");
   const [addInput, setAddInput] = useState("");
+  //
+  const [treeRoot, setTreeRoot] = useState(null);
+  const [listData, setListData] = useState<string[]>([]);
 
   useEffect(() => {
     if (file) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       readFile(file).then((file) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const list = file as unknown as string[];
-        setListData(bubbleSort(list));
+        const list = file as string[];
+        let root = null;
+        for (let i = 0; i < list.length; i++) {
+          root = insert(root, list[i]);
+        }
+        setTreeRoot(root);
       });
     }
   }, [file]);
 
-  const addToList = () => {
-    setListData((prev) => bubbleSort([...prev, addInput]));
-    setAddInput("");
+  useEffect(() => {
+    if (treeRoot) {
+      const traversalArray: string[] = [];
+      inorderTraversal(treeRoot, traversalArray);
+      setListData(traversalArray as string[]);
+    }
+  }, [treeRoot]);
+
+  const addTolist = () => {
+    if (treeRoot) {
+      console.log(addInput);
+      const newElement = addInput.trim();
+      const newRoot = insert(treeRoot, newElement);
+      setTreeRoot({ ...newRoot });
+      setAddInput("");
+    }
   };
 
-  const searchElementInList = () => {
-    const result = binarySearch(listData, searchInput);
-    console.log(result);
-    alert(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      `Элемент= ${searchInput}\nкол-во итераций:${result.count}\nиндекс:${result.position}`
-    );
+  const searchElem = () => {
+    if (treeRoot && searchInput.trim() !== "") {
+      const { node, iterations } = search(treeRoot, searchInput.trim());
+      if (node) {
+        alert(
+          `Элемент = ${
+            node.val
+          }\nКоличество итераций = ${iterations}\nИндекс=${listData.indexOf(searchInput)}`
+        );
+        // Действия с найденным элементом
+      } else {
+        alert(`Элемент не найден\nКоличество итераций = ${iterations}`);
+      }
+      setSearchInput("");
+    }
   };
+
   return (
     <div>
       <h1>Бинарное дерево</h1>
@@ -99,6 +140,7 @@ const BinaryMethod = () => {
           <FileInput onFileSelect={setFile} />
           <form>
             <div>
+              <p>Простой список</p>
               <div style={{ display: "flex", gap: "10px" }}>
                 <div style={{ display: "flex", gap: "10px" }}>
                   <input
@@ -106,7 +148,7 @@ const BinaryMethod = () => {
                     placeholder="Поиск идентификатора"
                     onChange={(e) => setSearchInput(e.target.value)}
                   ></input>
-                  <button type="button" onClick={searchElementInList}>
+                  <button type="button" onClick={searchElem}>
                     Найти
                   </button>
                 </div>
@@ -116,7 +158,7 @@ const BinaryMethod = () => {
                     placeholder="Добавить идентификатор"
                     onChange={(e) => setAddInput(e.target.value)}
                   ></input>
-                  <button type="button" onClick={addToList}>
+                  <button type="button" onClick={addTolist}>
                     Добавить
                   </button>
                 </div>
