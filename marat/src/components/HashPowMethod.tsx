@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import DataTable from "./DataTable";
 import FileInput from "./FileInput";
 import { readFile } from "../utils/readFile";
+import { InputText } from "primereact/inputtext";
+import { Button } from "primereact/button";
 
-// Хэш-таблица
+// Класс Хэш-таблицы
 class HashTable {
   table: (string | null)[];
   size: number;
@@ -14,7 +16,7 @@ class HashTable {
   }
 
   // Хэш функция
-  hash(key: string): number {
+  hash(key: string, attempt: number): number {
     const A = 0.7; // Константа для метода произведения
     let hashCode = 0;
 
@@ -24,44 +26,53 @@ class HashTable {
 
     let hashValue = (hashCode * A) % this.size;
     hashValue = Math.floor(hashValue);
-    const randomNumberFrom1To100 = Math.floor(Math.random() * 100) + 1;
-    return Math.ceil(hashValue * randomNumberFrom1To100) % this.size;
+    return (hashValue * attempt) % this.size;
   }
 
-  // Добавление
+  // Добавление в таблицу
   insert(key: string): void {
     if (this.table.includes(key)) {
       alert("Элемент есть");
       return;
     }
-    let index = Math.ceil(this.hash(key));
+    // Кол-во проб
+    let attempt = 1;
+    let index = Math.ceil(this.hash(key, attempt));
     while (this.table[index] !== null) {
-      index = Math.ceil(this.hash(key));
+      attempt++;
+      index = Math.ceil(this.hash(key, attempt));
+      if (attempt >= this.size) {
+        alert("Хеш-таблица заполнена");
+        throw new Error("Хеш-таблица заполнена");
+      }
     }
 
     this.table[index] = key;
-    console.log(this.table);
   }
-
-  // Поиск
+  // Поиск по таблице
   search(key: string): number | null {
-    let index = Math.ceil(this.hash(key));
-    console.log(this.table[index] !== key);
+    let attempt = 1;
+    let index = Math.ceil(this.hash(key, attempt));
     while (this.table[index] !== key) {
-      index = Math.ceil(this.hash(key));
+      attempt++;
+      index = Math.ceil(this.hash(key, attempt));
+      if (this.table[index] === null || attempt >= this.size) {
+        return null;
+      }
     }
 
     return index;
   }
 }
 
-const HashRandomMethod = () => {
+const HashPowMethod = () => {
   const [file, setFile] = useState<null | File>(null);
-  const [addInput, setAddInput] = useState("");
   const [searchInput, setSearchInput] = useState("");
+  const [addInput, setAddInput] = useState("");
   const [hashTable, setHashTable] = useState<HashTable | null>(null);
   const [listData, setListData] = useState<string[]>([]);
 
+  // При монтировании компонента создаем класс хэш таблицы
   useEffect(() => {
     const table = new HashTable(50);
     setHashTable(table);
@@ -73,13 +84,15 @@ const HashRandomMethod = () => {
         const list = file as string[];
         for (let i = 0; i < list.length; i++) {
           hashTable?.insert(list[i]);
-        } // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/ban-ts-comment
+        }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/ban-ts-comment
         //@ts-ignore
-        setListData([...hashTable.table]);
+        hashTable && setListData([...hashTable.table]);
       });
     }
   }, [file]);
 
+  // Добавление элемента
   const addToList = () => {
     if (hashTable && addInput.trim() !== "") {
       const newElement = addInput.trim();
@@ -91,6 +104,7 @@ const HashRandomMethod = () => {
     }
   };
 
+  // Поиск элемента
   const searchElem = () => {
     if (hashTable && searchInput.trim() !== "") {
       const index = hashTable.search(searchInput.trim());
@@ -106,42 +120,39 @@ const HashRandomMethod = () => {
 
   return (
     <div>
-      <h1>Хеш-таблица (псевдослучайное)</h1>
+      <h1>Хеш-таблица (Рехэширование методом произведения)</h1>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 15 }}>
         <DataTable data={listData} />
         <div style={{ display: "flex", flexDirection: "column", gap: 15 }}>
           <FileInput onFileSelect={setFile} />
-          <form>
-            <div>
-              <p>Хеш-таблица</p>
+          <div>
+            <div style={{ display: "flex", gap: "10px" }}>
               <div style={{ display: "flex", gap: "10px" }}>
-                <div style={{ display: "flex", gap: "10px" }}>
-                  <input
-                    value={searchInput}
-                    placeholder="Поиск идентификатора"
-                    onChange={(e) => setSearchInput(e.target.value)}
-                  ></input>
-                  <button type="button" onClick={searchElem}>
-                    Найти
-                  </button>
-                </div>
-                <div style={{ display: "flex", gap: "10px" }}>
-                  <input
-                    value={addInput}
-                    placeholder="Добавить идентификатор"
-                    onChange={(e) => setAddInput(e.target.value)}
-                  ></input>
-                  <button type="button" onClick={addToList}>
-                    Добавить
-                  </button>
-                </div>
+                <InputText
+                  width={300}
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  placeholder="Поиск идентификатора"
+                />
+
+                <Button label="Найти" onClick={searchElem} />
+              </div>
+              <div style={{ display: "flex", gap: "10px" }}>
+                <InputText
+                  width={300}
+                  value={addInput}
+                  onChange={(e) => setAddInput(e.target.value)}
+                  placeholder="Добавить идентификатор"
+                />
+
+                <Button label="Добавить" onClick={addToList} />
               </div>
             </div>
-          </form>
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-export default HashRandomMethod;
+export default HashPowMethod;

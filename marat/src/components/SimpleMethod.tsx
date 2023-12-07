@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import DataTable from "./DataTable";
 import FileInput from "./FileInput";
 import { readFile } from "../utils/readFile";
+import { Button } from "primereact/button";
+import { InputText } from "primereact/inputtext";
 
 const SimpleMethod = () => {
   const [file, setFile] = useState<null | File>(null);
@@ -11,9 +13,7 @@ const SimpleMethod = () => {
 
   useEffect(() => {
     if (file) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       readFile(file).then((file) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         //чтение из файла
         const list = file as unknown as string[];
         setListData(list);
@@ -46,37 +46,35 @@ const SimpleMethod = () => {
   };
   return (
     <div>
-      <h1>Простой списк</h1>
+      <h1>Простой список</h1>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 15 }}>
         <DataTable data={listData} />
         <div style={{ display: "flex", flexDirection: "column", gap: 15 }}>
           <FileInput onFileSelect={setFile} />
-          <form>
-            <div>
+          <div>
+            <div style={{ display: "flex", gap: "10px" }}>
               <div style={{ display: "flex", gap: "10px" }}>
-                <div style={{ display: "flex", gap: "10px" }}>
-                  <input
-                    value={searchInput}
-                    placeholder="Поиск идентификатора"
-                    onChange={(e) => setSearchInput(e.target.value)}
-                  ></input>
-                  <button type="button" onClick={searchElementInList}>
-                    Найти
-                  </button>
-                </div>
-                <div style={{ display: "flex", gap: "10px" }}>
-                  <input
-                    value={addInput}
-                    placeholder="Добавить идентификатор"
-                    onChange={(e) => setAddInput(e.target.value)}
-                  ></input>
-                  <button type="button" onClick={addToList}>
-                    Добавить
-                  </button>
-                </div>
+                <InputText
+                  width={300}
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  placeholder="Поиск идентификатора"
+                />
+
+                <Button label="Найти" onClick={searchElementInList} />
+              </div>
+              <div style={{ display: "flex", gap: "10px" }}>
+                <InputText
+                  width={300}
+                  value={addInput}
+                  onChange={(e) => setAddInput(e.target.value)}
+                  placeholder="Добавить идентификатор"
+                />
+
+                <Button label="Добавить" onClick={addToList} />
               </div>
             </div>
-          </form>
+          </div>
         </div>
       </div>
     </div>
