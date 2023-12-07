@@ -1,30 +1,11 @@
 import { useEffect, useState } from "react";
 import DataTable from "./DataTable";
 import FileInput from "./FileInput";
-
-function readFile(file: File) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-
-    reader.onload = (event) => {
-      const data = event.target?.result as string;
-      console.log(data.split("\n"));
-      data && resolve(data.split("\n"));
-    };
-
-    reader.onerror = (error) => {
-      reject(error);
-    };
-
-    reader.readAsText(file);
-  });
-}
+import { readFile } from "../utils/readFile";
 
 const SimpleMethod = () => {
   const [file, setFile] = useState<null | File>(null);
   const [listData, setListData] = useState<string[]>([]);
-
-  //simple methods
   const [searchInput, setSearchInput] = useState("");
   const [addInput, setAddInput] = useState("");
 
@@ -33,6 +14,7 @@ const SimpleMethod = () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       readFile(file).then((file) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        //чтение из файла
         const list = file as unknown as string[];
         setListData(list);
       });
@@ -40,13 +22,14 @@ const SimpleMethod = () => {
   }, [file]);
 
   const addToList = () => {
+    //Добавление в конец массива нового элемента
     setListData((prev) => [...prev, addInput]);
     setAddInput("");
   };
 
   const searchElementInList = () => {
     let iterations = 0;
-
+    //Проостой цикл и метод перебора с начального элемента
     for (let i = 0; i < listData.length; i++) {
       iterations++;
       if (listData[i] === searchInput) {

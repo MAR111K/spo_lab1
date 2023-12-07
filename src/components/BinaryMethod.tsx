@@ -1,25 +1,12 @@
 import { useEffect, useState } from "react";
 import DataTable from "./DataTable";
 import FileInput from "./FileInput";
+import { readFile } from "../utils/readFile";
 
-function readFile(file: File) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-
-    reader.onload = (event) => {
-      const data = event.target?.result as string;
-      console.log(data.split("\n"));
-      data && resolve(data.split("\n"));
-    };
-
-    reader.onerror = (error) => {
-      reject(error);
-    };
-
-    reader.readAsText(file);
-  });
-}
-
+// Класс Бинарного дерева
+// левый узел
+// правый узел
+// значение
 class Node {
   left = null;
   right = null;
@@ -30,6 +17,7 @@ class Node {
   }
 }
 
+//Метод вставки элемента в дерево
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function insert(root: any, key: string) {
   if (!root) {
@@ -43,6 +31,8 @@ function insert(root: any, key: string) {
     return root;
   }
 }
+
+// Метод для обхода бинарного дерева в порядке возрастания
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function inorderTraversal(root: any, traversalArray: string[]) {
   if (root) {
@@ -75,10 +65,8 @@ function search(root: any, key: string): any {
 
 const BinaryMethod = () => {
   const [file, setFile] = useState<null | File>(null);
-
   const [searchInput, setSearchInput] = useState("");
   const [addInput, setAddInput] = useState("");
-  //
   const [treeRoot, setTreeRoot] = useState(null);
   const [listData, setListData] = useState<string[]>([]);
 
@@ -97,6 +85,7 @@ const BinaryMethod = () => {
   }, [file]);
 
   useEffect(() => {
+    //При первичном запуске создаем дерево и помещаем туда наш массив значений
     if (treeRoot) {
       const traversalArray: string[] = [];
       inorderTraversal(treeRoot, traversalArray);
@@ -105,8 +94,8 @@ const BinaryMethod = () => {
   }, [treeRoot]);
 
   const addTolist = () => {
+    // Добавляем новый элемент в дерево
     if (treeRoot) {
-      console.log(addInput);
       const newElement = addInput.trim();
       const newRoot = insert(treeRoot, newElement);
       setTreeRoot({ ...newRoot });
@@ -115,6 +104,7 @@ const BinaryMethod = () => {
   };
 
   const searchElem = () => {
+    // Поиск элемента в дереве
     if (treeRoot && searchInput.trim() !== "") {
       const { node, iterations } = search(treeRoot, searchInput.trim());
       if (node) {

@@ -1,25 +1,9 @@
 import { useEffect, useState } from "react";
 import DataTable from "./DataTable";
 import FileInput from "./FileInput";
+import { readFile } from "../utils/readFile";
 
-function readFile(file: File) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-
-    reader.onload = (event) => {
-      const data = event.target?.result as string;
-      console.log(data.split("\n"));
-      data && resolve(data.split("\n"));
-    };
-
-    reader.onerror = (error) => {
-      reject(error);
-    };
-
-    reader.readAsText(file);
-  });
-}
-
+//Метод сортировки пузырьком
 function bubbleSort(arr: string[]) {
   const len = arr.length;
   for (let i = 0; i < len; i++) {
@@ -34,6 +18,7 @@ function bubbleSort(arr: string[]) {
   return arr;
 }
 
+//Бинарный поиск элемента по массиву
 function binarySearch(array: string[], item: string) {
   let start = 0;
   let count = 0;
@@ -62,7 +47,6 @@ const LogSearch = () => {
   const [file, setFile] = useState<null | File>(null);
   const [listData, setListData] = useState<string[]>([]);
 
-  //simple methods
   const [searchInput, setSearchInput] = useState("");
   const [addInput, setAddInput] = useState("");
 
@@ -78,11 +62,13 @@ const LogSearch = () => {
   }, [file]);
 
   const addToList = () => {
+    //Добавляем элемент и сортируем массив
     setListData((prev) => bubbleSort([...prev, addInput]));
     setAddInput("");
   };
 
   const searchElementInList = () => {
+    //Поиск элемента бинарным методом
     const result = binarySearch(listData, searchInput);
     alert(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

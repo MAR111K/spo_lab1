@@ -1,25 +1,9 @@
 import { useEffect, useState } from "react";
 import DataTable from "./DataTable";
 import FileInput from "./FileInput";
+import { readFile } from "../utils/readFile";
 
-function readFile(file: File) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-
-    reader.onload = (event) => {
-      const data = event.target?.result as string;
-      console.log(data.split("\n"));
-      data && resolve(data.split("\n"));
-    };
-
-    reader.onerror = (error) => {
-      reject(error);
-    };
-
-    reader.readAsText(file);
-  });
-}
-
+// Класс Хэш-таблицы
 class HashTable {
   table: (string | null)[];
   size: number;
@@ -29,24 +13,29 @@ class HashTable {
     this.table = new Array(size).fill(null);
   }
 
+  // Хэш функция
   hash(key: string, attempt: number): number {
-    const A = 0.618033; // Константа для метода произведения
+    const A = 0.7; // Константа для метода произведения
     let hashCode = 0;
+
     for (let i = 0; i < key.length; i++) {
       hashCode += key.charCodeAt(i);
     }
-    const hashValue = this.size * ((hashCode * A) % 1);
-    return Math.ceil(hashValue * attempt) % this.size;
+
+    let hashValue = (hashCode * A) % this.size;
+    hashValue = Math.floor(hashValue);
+    return (hashValue * attempt) % this.size;
   }
 
+  // Добавление в таблицу
   insert(key: string): void {
     if (this.table.includes(key)) {
       alert("Элемент есть");
       return;
     }
-    let attempt = 0;
+    // Кол-во проб
+    let attempt = 1;
     let index = Math.ceil(this.hash(key, attempt));
-    console.log(index);
     while (this.table[index] !== null) {
       attempt++;
       index = Math.ceil(this.hash(key, attempt));
@@ -58,15 +47,15 @@ class HashTable {
 
     this.table[index] = key;
   }
-
+  // Поиск по таблице
   search(key: string): number | null {
-    let attempt = 0;
+    let attempt = 1;
     let index = Math.ceil(this.hash(key, attempt));
     while (this.table[index] !== key) {
       attempt++;
       index = Math.ceil(this.hash(key, attempt));
       if (this.table[index] === null || attempt >= this.size) {
-        return null; // Если не найдено или все возможные индексы просмотрены
+        return null;
       }
     }
 
@@ -76,15 +65,14 @@ class HashTable {
 
 const HashPowMethod = () => {
   const [file, setFile] = useState<null | File>(null);
-
   const [searchInput, setSearchInput] = useState("");
   const [addInput, setAddInput] = useState("");
-  //
   const [hashTable, setHashTable] = useState<HashTable | null>(null);
   const [listData, setListData] = useState<string[]>([]);
 
+  // При монтировании компонента создаем класс хэш таблицы
   useEffect(() => {
-    const table = new HashTable(20);
+    const table = new HashTable(50);
     setHashTable(table);
   }, []);
 
@@ -102,6 +90,7 @@ const HashPowMethod = () => {
     }
   }, [file]);
 
+  // Добавление элемента
   const addToList = () => {
     if (hashTable && addInput.trim() !== "") {
       const newElement = addInput.trim();
@@ -113,6 +102,7 @@ const HashPowMethod = () => {
     }
   };
 
+  // Поиск элемента
   const searchElem = () => {
     if (hashTable && searchInput.trim() !== "") {
       const index = hashTable.search(searchInput.trim());
