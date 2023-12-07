@@ -1,5 +1,6 @@
 import BinaryMethod from "./components/BinaryMethod";
 import HashPowMethod from "./components/HashPowMethod";
+import HashRandomMethod from "./components/HashRandomMethod";
 import LogSearch from "./components/LogSearch";
 import SimpleMethod from "./components/SimpleMethod";
 
@@ -10,6 +11,7 @@ function App() {
       <BinaryMethod />
       <LogSearch />
       <HashPowMethod />
+      <HashRandomMethod />
     </div>
   );
 }

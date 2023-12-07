@@ -29,14 +29,15 @@ class HashTable {
     this.table = new Array(size).fill(null);
   }
 
-  hash(key: string, attempt: number): number {
+  hash(key: string): number {
     const A = 0.618033; // Константа для метода произведения
     let hashCode = 0;
     for (let i = 0; i < key.length; i++) {
       hashCode += key.charCodeAt(i);
     }
     const hashValue = this.size * ((hashCode * A) % 1);
-    return Math.ceil(hashValue * attempt) % this.size;
+    const randomNumberFrom1To100 = Math.floor(Math.random() * 100) + 1;
+    return Math.ceil(hashValue * randomNumberFrom1To100) % this.size;
   }
 
   insert(key: string): void {
@@ -45,11 +46,11 @@ class HashTable {
       return;
     }
     let attempt = 0;
-    let index = Math.ceil(this.hash(key, attempt));
+    let index = Math.ceil(this.hash(key));
     console.log(index);
     while (this.table[index] !== null) {
       attempt++;
-      index = Math.ceil(this.hash(key, attempt));
+      index = Math.ceil(this.hash(key));
       if (attempt >= this.size) {
         alert("Хеш-таблица заполнена");
         throw new Error("Хеш-таблица заполнена");
@@ -57,14 +58,16 @@ class HashTable {
     }
 
     this.table[index] = key;
+    console.log(this.table);
   }
 
   search(key: string): number | null {
     let attempt = 0;
-    let index = Math.ceil(this.hash(key, attempt));
+    let index = Math.ceil(this.hash(key));
+    console.log(this.table[index] !== key);
     while (this.table[index] !== key) {
       attempt++;
-      index = Math.ceil(this.hash(key, attempt));
+      index = Math.ceil(this.hash(key));
       if (this.table[index] === null || attempt >= this.size) {
         return null; // Если не найдено или все возможные индексы просмотрены
       }
@@ -74,7 +77,7 @@ class HashTable {
   }
 }
 
-const HashPowMethod = () => {
+const HashRandomMethod = () => {
   const [file, setFile] = useState<null | File>(null);
 
   const [searchInput, setSearchInput] = useState("");
@@ -94,10 +97,9 @@ const HashPowMethod = () => {
         const list = file as string[];
         for (let i = 0; i < list.length; i++) {
           hashTable?.insert(list[i]);
-        }
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/ban-ts-comment
+        } // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/ban-ts-comment
         //@ts-ignore
-        hashTable && setListData([...hashTable.table]);
+        setListData([...hashTable.table]);
       });
     }
   }, [file]);
@@ -128,7 +130,7 @@ const HashPowMethod = () => {
 
   return (
     <div>
-      <h1>Хеш-таблица (произведение)</h1>
+      <h1>Хеш-таблица (псевдослучайное)</h1>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 15 }}>
         <DataTable data={listData} />
         <div style={{ display: "flex", flexDirection: "column", gap: 15 }}>
@@ -166,4 +168,4 @@ const HashPowMethod = () => {
   );
 };
 
-export default HashPowMethod;
+export default HashRandomMethod;
